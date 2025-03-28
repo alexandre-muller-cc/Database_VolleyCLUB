@@ -1,3 +1,12 @@
+
+
+CREATE TABLE Province (
+    City VARCHAR(50),
+    Province VARCHAR(50), 
+    PRIMARY KEY (City) -- City must be unique in Province
+    
+   
+);
 CREATE TABLE Locations (
     Name VARCHAR(50), 
     Type VARCHAR(10) NOT NULL,  -- Use VARCHAR instead of ENUM
@@ -13,21 +22,15 @@ CREATE TABLE Locations (
     
 );
 
-CREATE TABLE Province (
-    City VARCHAR(50),
-    Province VARCHAR(50), 
-    PRIMARY KEY (City) -- City must be unique in Province
-    
-   
-);
+
 
 
 CREATE TABLE Personnel (
-    `First Name` VARCHAR(50), 
-    `Last Name` VARCHAR(50), 
-    `Date of Birth` DATE,
+    First_Name VARCHAR(50), 
+    Last_Name VARCHAR(50), 
+    Date_of_Birth DATE,
     SIN VARCHAR(50) NOT NULL,
-    `MEDICAR CART NUMBER` VARCHAR(50),
+    MEDICAR_CART_NUMBER VARCHAR(50),
     Phone_Number VARCHAR(12),
     Address VARCHAR(50),
     City VARCHAR(50),
@@ -46,14 +49,15 @@ CREATE TABLE Role_table (
 
 
 CREATE TABLE Working_log (
-    `Transaction_id` VARCHAR(50), 
+    Transaction_id VARCHAR(50), 
     SIN VARCHAR(50), 
-    `Name` VARCHAR(50), 
+    Name VARCHAR(50), 
     Role_name VARCHAR(50),
-    Mandate ENUM('Paid','Unpaid'),
+    Mandate  VARCHAR(50),
     Start_date DATE NOT NULL,
-    END_DATE,
-    PRIMARY KEY(`Transaction_id`),
-    FOREIGN KEY (`Role_name`) REFERENCES Role_table(Role_name)
+    END_DATE DATE,
+    PRIMARY KEY(Transaction_id),
+    FOREIGN KEY (Role_name) REFERENCES Role_table(Role_name),
+    CHECK (Mandate IN ('Paid', 'Unpaid'))  -- Use CHECK constraint to limit values
     
 );
