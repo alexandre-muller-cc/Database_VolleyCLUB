@@ -1,6 +1,6 @@
 CREATE TABLE Locations (
     Name VARCHAR(50), 
-    type ENUM('Head','Branch') NOT NULL,
+    Type VARCHAR(10) NOT NULL,  -- Use VARCHAR instead of ENUM
     Address VARCHAR(50),
     City VARCHAR(50),
     Postal_Code VARCHAR(7),
@@ -8,7 +8,8 @@ CREATE TABLE Locations (
     Web_Address VARCHAR(50),
     Maximum_Cap INT,
     PRIMARY KEY (Name),
-    FOREIGN KEY (City) REFERENCES Province(City)
+    FOREIGN KEY (City) REFERENCES Province(City),
+    CHECK (Type IN ('Head', 'Branch'))  -- Use CHECK constraint to limit values
     
 );
 
@@ -16,6 +17,7 @@ CREATE TABLE Province (
     City VARCHAR(50),
     Province VARCHAR(50), 
     PRIMARY KEY (City) -- City must be unique in Province
+    
    
 );
 
@@ -36,9 +38,10 @@ CREATE TABLE Personnel (
 );
 
 CREATE TABLE Role_table (
-    Type ENUM('Head','Branch'),
+    Type_job VARCHAR(10) NOT NULL,
     Role_name VARCHAR(50), 
-    PRIMARY KEY (Role_name)
+    PRIMARY KEY (Role_name),
+    CHECK (Type_job IN ('Head', 'Branch'))  -- Use CHECK constraint to limit values
 );
 
 
