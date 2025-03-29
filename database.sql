@@ -118,6 +118,58 @@ CREATE TABLE Financial_log (
     FOREIGN KEY (SIN) REFERENCES Club_member(SIN)
 );
 
+CREATE TABLE Team_position (
+    Position_id VARCHAR(50), 
+    Position_name VARCHAR (50),
+    PRIMARY KEY(Position_id)
+
+);
+
+CREATE TABLE Team_entity (
+    Team_name VARCHAR(50), 
+    Captain_name VARCHAR (50),
+    PRIMARY KEY(Team_name)
+);
+
+--Assume a player is fixed per team, and kep the same role. 
+
+CREATE TABLE Player_team (
+    Team_name VARCHAR(50), 
+    Player_SIN VARCHAR (50),
+    Position_id VARCHAR(50), 
+    PRIMARY KEY(Player_SIN),
+    FOREIGN KEY (Team_name) REFERENCES Team_entity(Team_name), 
+    FOREIGN KEY (Player_SIN) REFERENCES Club_member(SIN),
+    FOREIGN KEY (Position_id) REFERENCES Team_position(Position_id)
+);
+
+
+CREATE TABLE Game_log (
+    game_id VARCHAR(50), 
+    game_month INT,
+    game_year INT,
+    game_hour INT, 
+    game_type VARCHAR(50), 
+    game_city_location VARCHAR (100),
+    Player_SIN VARCHAR (50),
+    team1_name VARCHAR(50),
+    team2_name VARCHAR(50),
+    score INT, 
+    CHECK (game_type IN ('training', 'game'))  -- Use CHECK constraint to limit values
+    PRIMARY KEY(game_id),
+    FOREIGN KEY (team1_name) REFERENCES Team_entity(Team_name), 
+    FOREIGN KEY (team2_name) REFERENCES Team_entity(Team_name),
+    FOREIGN KEY (Player_SIN) REFERENCES Club_member(SIN)
+);
+
+
+    
+    
+
+
+
+
+
 
 
 
