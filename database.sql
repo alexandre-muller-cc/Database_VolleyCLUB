@@ -343,7 +343,7 @@ INSERT INTO Game_log (game_id, game_month, game_year, game_hour, game_type, game
 
 
 
-  --  6. Assign/Delete/Edit a club member to a team formation. (Attempt to assign a conflicting
+ --  6. Assign/Delete/Edit a club member to a team formation. (Attempt to assign a conflicting
  -- assignment for a club member in two team formations on the same day)
  
  -- NOT WORKING 
@@ -550,8 +550,57 @@ CURRENT_LOCATION AS (
 SELECT * 
 FROM Club_member
 left JOIN CURRENT_LOCATION on Club_member.SIN = CURRENT_LOCATION.SIN1
-WHERE CURRENT_LOCATION.SIN1 IS NULL 
+WHERE CURRENT_LOCATION.SIN1 IS NULL;
 
+
+
+
+
+
+
+
+
+-- Get a report on all active club members who have been assigned at least once to every
+-- role throughout all the formation team game sessions. The club member must be
+-- assigned to at least one formation game session as an outside hitter, opposite, setter,
+-- middle blocker, libero, defensive specialist, and serving specialist. The list should
+-- include the club member’s membership number, first name, last name, age, phone
+-- number, email and current location name. The results should be displayed sorted in
+-- ascending order by location name then by club membership number.
+
+
+
+-- GET THE LAST OF ACTIVE MEMBER, THIS TABLE IS THE UPDATED ONE WITH THE AGE IN CONSIDERATION 
+
+WITH TABLE2 AS (
+SELECT * FROM (
+    SELECT 
+      CMN AS CMN1, SIN AS financial_sin,
+        SUM(Payment_amount) AS TOTAL_PAYMENT,
+        CASE 
+            WHEN SUM(Payment_amount) >= 100 THEN 'ACTIVE' 
+            ELSE 'INACTIVE' 
+        END AS STATUS 
+    FROM Financial_log
+    WHERE Date_of_payment_year = 2025
+    GROUP BY CMN1,financial_sin
+    HAVING STATUS = 'ACTIVE') AS SUB 
+    INNER JOIN Club_member ON SUB.financial_sin = Club_member.SIN
+    WHERE Club_member.Date_of_Birth_year<2014 AND Club_member.Date_of_Birth_year>2007
+)
+
+ --  GET THE NUMBER OF TIME A PLAYER HAS BEEN ASSIGNED TO DIFFERENT ROLE 
+  --  IF THE COUNT IS 7, THEN THE PLAYER HAS BEEN throughout ALL THE ROLES AVAILABLES 
+ 
+ SELECT SUB.Player_SIN, COUNT(*)
+ FROM (
+      SELECT Player_SIN,Position_id
+      FROM Player_team
+      GROUP BY Player_SIN,Position_id) AS SUB 
+      
+      GROUP BY SUB.Player_SIN
+     
+     
 
 
 
