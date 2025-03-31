@@ -592,13 +592,77 @@ SELECT * FROM (
  --  GET THE NUMBER OF TIME A PLAYER HAS BEEN ASSIGNED TO DIFFERENT ROLE 
   --  IF THE COUNT IS 7, THEN THE PLAYER HAS BEEN throughout ALL THE ROLES AVAILABLES 
  
- SELECT SUB.Player_SIN, COUNT(*)
+ SELECT SUB.Player_SIN,
+ COUNT(*)
  FROM (
       SELECT Player_SIN,Position_id
       FROM Player_team
-      GROUP BY Player_SIN,Position_id) AS SUB 
-      
-      GROUP BY SUB.Player_SIN
+      GROUP BY Player_SIN,Position_id
+      )AS SUB 
+GROUP BY SUB.Player_SIN;
+
+
+-- Get a report of all active club members who have never lost a game in which they
+-- played. A club member is considered to win a game if she/he has been assigned to a
+-- game session and is assigned to the team that has a score higher than the score of the
+-- other team. The club member must be assigned to at least one formation game session.
+-- The list should include the club member’s membership number, first name, last name,
+-- age, phone number, email and current location name. The results should be displayed
+-- sorted in ascending order by location name then by club membership number.
+
+-- GET THE LIST OF ALL THE ACTIVES CLUB MEMBER 
+     
+     
+
+WITH TABLE2 AS (
+SELECT * FROM (
+    SELECT 
+      CMN AS CMN1, SIN AS financial_sin,
+        SUM(Payment_amount) AS TOTAL_PAYMENT,
+        CASE 
+            WHEN SUM(Payment_amount) >= 100 THEN 'ACTIVE' 
+            ELSE 'INACTIVE' 
+        END AS STATUS 
+    FROM Financial_log
+    WHERE Date_of_payment_year = 2025
+    GROUP BY CMN1,financial_sin
+    HAVING STATUS = 'ACTIVE') AS SUB 
+    INNER JOIN Club_member ON SUB.financial_sin = Club_member.SIN
+    WHERE Club_member.Date_of_Birth_year<2014 AND Club_member.Date_of_Birth_year>2007)
+    
+SELECT * FROM TABLE2;
+
+
+-- Get the LIST OF ALL THE PLAYER WHO PLAYED A REAL GAME 
+PLAYER_WHO_PLAYED AS (
+SELECT DISTINCT SUB.Player_SIN FROM(
+
+SELECT game_log.*, Player_team.*
+FROM game_log
+INNER JOIN Player_team ON game_log.team1_name = Player_team.Team_name
+
+UNION ALL
+
+SELECT game_log.*, Player_team.*
+FROM game_log
+INNER JOIN Player_team ON game_log.team2_name = Player_team.Team_name) AS SUB),
+
+
+
+-- GET THE LIST OF ALL PLAYER WHO ACTUALLY PLAYED A GAME WITH THE FIRST TEAMS AND HAVE AT LEAST A LOSS 
+
+SELECT *,
+CASE 
+      WHEN score_teams1 <score_teams2 THEN 'LOSS' 
+      ELSE 'WIN' 
+  END AS STATUS 
+FROM game_log
+INNER JOIN Player_team ON game_log.team1_name = Player_team.Team_name
+HAVING STATUS ='LOSS'
+
+
+
+
      
      
 
