@@ -634,8 +634,9 @@ SELECT * FROM TABLE2;
 
 
 -- Get the LIST OF ALL THE PLAYER WHO PLAYED A REAL GAME 
-PLAYER_WHO_PLAYED AS (
-SELECT DISTINCT SUB.Player_SIN FROM(
+ WITH PLAYER_WHO_PLAYED AS (
+SELECT DISTINCT SUB.Player_SIN
+FROM(
 
 SELECT game_log.*, Player_team.*
 FROM game_log
@@ -651,6 +652,7 @@ INNER JOIN Player_team ON game_log.team2_name = Player_team.Team_name) AS SUB),
 
 -- GET THE LIST OF ALL PLAYER WHO ACTUALLY PLAYED A GAME WITH THE FIRST TEAMS AND HAVE AT LEAST A LOSS 
 
+TEAMS1LOSS AS (
 SELECT *,
 CASE 
       WHEN score_teams1 <score_teams2 THEN 'LOSS' 
@@ -658,7 +660,41 @@ CASE
   END AS STATUS 
 FROM game_log
 INNER JOIN Player_team ON game_log.team1_name = Player_team.Team_name
-HAVING STATUS ='LOSS'
+HAVING STATUS ='LOSS'),
+
+TEAMS2LOSS AS (
+SELECT *,
+CASE 
+      WHEN score_teams2 <score_teams1 THEN 'LOSS' 
+      ELSE 'WIN' 
+  END AS STATUS 
+FROM game_log
+INNER JOIN Player_team ON game_log.team2_name = Player_team.Team_name
+HAVING STATUS ='LOSS'),
+
+ -- merge both table and get unique id to see all loser player 
+
+LOSING_PLAYER_ONLY AS
+(
+SELECT DISTINCT Player_SIN AS PLAYER_SIN_LOSS
+FROM (SELECT Player_SIN, STATUS
+FROM TEAMS1LOSS
+
+UNION ALL
+
+SELECT Player_SIN, STATUS
+FROM TEAMS1LOSS) as sub
+)
+
+
+-- now we cna merge it with the player tbale and only keep null value 
+
+select * 
+from PLAYER_WHO_PLAYED
+left JOIN LOSING_PLAYER_ONLY ON PLAYER_WHO_PLAYED.Player_SIN = LOSING_PLAYER_ONLY.PLAYER_SIN_LOSS
+WHERE PLAYER_SIN_LOSS IS NULL;
+
+-- NOW WE HAVE TO MERGE BACK TO THE ENTITY TABLE CLUB MUMBER TO GET THE OTHER INFO 
 
 
 
