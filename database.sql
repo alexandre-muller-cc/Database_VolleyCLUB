@@ -343,7 +343,7 @@ INSERT INTO Game_log (game_id, game_month, game_year, game_hour, game_type, game
 
 
 
- --  6. Assign/Delete/Edit a club member to a team formation. (Attempt to assign a conflicting
+  --  6. Assign/Delete/Edit a club member to a team formation. (Attempt to assign a conflicting
  -- assignment for a club member in two team formations on the same day)
  
  -- NOT WORKING 
@@ -509,7 +509,7 @@ TABLE3 AS (
 
 -- THIS TABLE IS THE TABLE SHOWING ALL THE CURRENT LOCATIONS OF EVERY PLAYERS (IN CASE OF MULTIPLE LOCATIONS)
 Ranked_Filtered AS (
-  SELECT * 
+  SELECT *
   FROM RankedRegistrations
   WHERE rn = 1),
   
@@ -517,41 +517,40 @@ Ranked_Filtered AS (
   -- TABLE SHOWING ALL THE TEAMS THAT HAVE BEEN REGISTERED IN A GAME SESSIONS 
   
 Teams_participation AS(
-SELECT DISTINCT Team FROM (
-    SELECT team1_name AS Team FROM Game_log
+SELECT DISTINCT Team_in_log FROM (
+    SELECT team1_name AS Team_in_log FROM Game_log
     UNION
-    SELECT team2_name AS Team FROM Game_log
-) AS AllTeams)
+    SELECT team2_name AS Team_in_log FROM Game_log
+) AS AllTeams),
 
-SELECT * FROM Teams_participation;
+
+-- GET ALL THE PLAYER THAT HAVE BEEN PLAYING IN AN ACTIVE TEAMS FROM TEAMS PARTICIPATION TABLE
+
+
+PLAYER_TEAMS_PARTICIPATION AS (
+
+SELECT * FROM (
+    SELECT Team_name, PLAYER_SIN
+    FROM Player_team
+    GROUP BY Team_name,Player_SIN) AS SUB
+    LEFT JOIN Teams_participation ON SUB.Team_name = Teams_participation.Team_in_log
+    WHERE Teams_participation.Team_in_log IS NOT NULL
+),
+
+
+-- Now That we have all the player we need to merge them with the Ranked_Filtered in order to get the current location 
+CURRENT_LOCATION AS (
+  SELECT SIN AS SIN1,Location_name
+  FROM Ranked_Filtered
+  INNER JOIN PLAYER_TEAMS_PARTICIPATION on Ranked_Filtered.SIN = PLAYER_TEAMS_PARTICIPATION.Player_SIN)
   
-  
-  
+-- NOW WE CAN MERGE BACK TO THE PLAYER TABLE 
+-- HERE NOT COMPLETE BECAUSE SOME PLAYER ARE IN THE CLUB MEMBER BUT HAVE NEVER BEEN REGISTERED 
 
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT * 
+FROM Club_member
+left JOIN CURRENT_LOCATION on Club_member.SIN = CURRENT_LOCATION.SIN1
+WHERE CURRENT_LOCATION.SIN1 IS NULL 
 
 
 
